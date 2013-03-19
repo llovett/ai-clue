@@ -50,11 +50,26 @@ def initialClauses():
         clauses.append([getPairNumFromNames(p,c) for p in extendedPlayers])
 
     # A card cannot be in two places.
+    addedClauses = 0
+    for card in cards:
+        for loc1, loc2 in itertools.combinations(extendedPlayers,2):
+            clauses.append([-1*getPairNumFromNames(loc1,card),
+                            -1*getPairNumFromNames(loc2,card)])
+            addedClauses += 1
+
+    print addedClauses,"were added to the knowledge base for card not being in 2 places."
 
     # At least one card of each category is in the case file.
-
+    clauses.append([getPairNumFromNames(caseFile,suspect) for suspect in suspects])
+    clauses.append([getPairNumFromNames(caseFile,weapon) for weapon in weapons])
+    clauses.append([getPairNumFromNames(caseFile,room) for room in rooms])
+        
     # No two cards in each category can both be in the case file.
-
+    for coll in (weapons, rooms, suspects):
+        for item1,item2 in itertools.combinations(coll,2):
+            clauses.append([-1*getPairNumFromNames(caseFile,item1),
+                            -1*getPairNumFromNames(caseFile,item2)])
+    
     return clauses
 
 # TO BE IMPLEMENTED FOR THIS HOMEWORK 
