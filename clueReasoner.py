@@ -70,8 +70,8 @@ def initialClauses():
 
 # TO BE IMPLEMENTED FOR THIS HOMEWORK 
 def hand(player,cards):
-    return []
-
+    '''Should return the clauses that can be created from <player> and <cards>'''
+    return [getPairNumFromNames(player,card) for card in cards]
 
 # TO BE IMPLEMENTED FOR THIS HOMEWORK
 def suggest(suggester,card1,card2,card3,refuter,cardShown):
