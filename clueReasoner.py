@@ -24,6 +24,7 @@ Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 02111-1307, USA.'''
 
 import SATSolver
+import itertools
 
 # Initialize important variables
 caseFile = "cf"
@@ -33,6 +34,11 @@ suspects = ["mu", "pl", "gr", "pe", "sc", "wh"]
 weapons = ["kn", "ca", "re", "ro", "pi", "wr"]
 rooms = ["ha", "lo", "di", "ki", "ba", "co", "bi", "li", "st"]
 cards = suspects + weapons + rooms
+
+def validateClaueses(clauses):
+    for item in clauses:
+        if not type(clauses) == type([]):
+            print "CLAUSES INVALID"
 
 def getPairNumFromNames(player,card):
     return getPairNumFromPositions(extendedPlayers.index(player),
@@ -65,13 +71,13 @@ def initialClauses():
         for item1,item2 in itertools.combinations(coll,2):
             clauses.append([-1*getPairNumFromNames(caseFile,item1),
                             -1*getPairNumFromNames(caseFile,item2)])
-    
+
     return clauses
 
 # TO BE IMPLEMENTED FOR THIS HOMEWORK
 def hand(player,cards):
     '''Should return the clauses that can be created from <player> and <cards>'''
-    return [getPairNumFromNames(player,card) for card in cards]
+    return [[getPairNumFromNames(player,card) for card in cards]]
 
 # TO BE IMPLEMENTED FOR THIS HOMEWORK
 def suggest(suggester,card1,card2,card3,refuter,cardShown):
@@ -89,15 +95,15 @@ def suggest(suggester,card1,card2,card3,refuter,cardShown):
         clauses.append([-1*getPairNumFromNames(caseFile, card) for card in [card1, card2, card3]])
 
         # Everyone between suggester and refuter did not have any of <card1> <card2> and <card3>
-        for player in players[ players.index(suggester+1) : players.index(refuter-1) ]:
-            clauses.append(-1*getPairNumFromNames(player, card1))
-            clauses.append(-1*getPairNumFromNames(player, card2))
-            clauses.append(-1*getPairNumFromNames(player, card3))
+        for player in players[ players.index(suggester)+1 : players.index(refuter)-1 ]:
+            clauses.append([-1*getPairNumFromNames(player, card1)])
+            clauses.append([-1*getPairNumFromNames(player, card2)])
+            clauses.append([-1*getPairNumFromNames(player, card3)])
 
         # We're being refuted
         if cardShown is not None:
-            clauses.append(getPairNumFromNames(refuter, cardShown))
-            clauses.append(-1*getPairNumFromNames(caseFile, cardShown))
+            clauses.append([getPairNumFromNames(refuter, cardShown)])
+            clauses.append([-1*getPairNumFromNames(caseFile, cardShown)])
         # Someone else is being refuted
         else:
             # The refuter has at least one of the cards
@@ -106,10 +112,10 @@ def suggest(suggester,card1,card2,card3,refuter,cardShown):
         # Nobody (but the suggester) has any of the cards
         for player in players:
             if player != suggester:
-            clauses.append(-1*getPairNumFromNames(player, card1))
-            clauses.append(-1*getPairNumFromNames(player, card2))
-            clauses.append(-1*getPairNumFromNames(player, card3))
-
+                clauses.append([-1*getPairNumFromNames(player, card1)])
+                clauses.append([-1*getPairNumFromNames(player, card2)])
+                clauses.append([-1*getPairNumFromNames(player, card3)])
+                
     return clauses
                            
                            
@@ -124,17 +130,17 @@ def accuse(accuser,card1,card2,card3,isCorrect):
 
     # All three cards are in the case file
     if isCorrect:
-        clauses.append(getPairNumFromNames(caseFile, card1))
-        clauses.append(getPairNumFromNames(caseFile, card2))
-        clauses.append(getPairNumFromNames(caseFile, card3))
+        clauses.append([getPairNumFromNames(caseFile, card1)])
+        clauses.append([getPairNumFromNames(caseFile, card2)])
+        clauses.append([getPairNumFromNames(caseFile, card3)])
     else:
         # At least one of <card1> <card2> <card3> is NOT in the case file
         clauses.append([-1*getPairNumFromNames(casefile, card) for card in [card1, card2, card3]])
 
     # Accuser has none of the three cards in their hand
-    clauses.append(-1*getPairNumFromNames(accuser, card1))
-    clauses.append(-1*getPairNumFromNames(accuser, card2))
-    clauses.append(-1*getPairNumFromNames(accuser, card3))
+    clauses.append([-1*getPairNumFromNames(accuser, card1)])
+    clauses.append([-1*getPairNumFromNames(accuser, card2)])
+    clauses.append([-1*getPairNumFromNames(accuser, card3)])
 
     return clauses
 
