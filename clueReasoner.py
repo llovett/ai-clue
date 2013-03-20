@@ -68,18 +68,75 @@ def initialClauses():
     
     return clauses
 
-# TO BE IMPLEMENTED FOR THIS HOMEWORK 
+# TO BE IMPLEMENTED FOR THIS HOMEWORK
 def hand(player,cards):
     '''Should return the clauses that can be created from <player> and <cards>'''
     return [getPairNumFromNames(player,card) for card in cards]
 
 # TO BE IMPLEMENTED FOR THIS HOMEWORK
 def suggest(suggester,card1,card2,card3,refuter,cardShown):
-    return []
+    '''Returns the clauses that can be inferred based on <suggester>,
+    <card1>, <card2>, <card3>, <refuter>, and <cardShown>'''
 
+    ####################
+    # SHOULD BE TESTED #
+    ####################
+
+    clauses = []
+
+    if refuter is not None:
+        # At least one of <card1> <card2> and <card3> is not in the case file
+        clauses.append([-1*getPairNumFromNames(caseFile, card) for card in [card1, card2, card3]])
+
+        # Everyone between suggester and refuter did not have any of <card1> <card2> and <card3>
+        for player in players[ players.index(suggester+1) : players.index(refuter-1) ]:
+            clauses.append(-1*getPairNumFromNames(player, card1))
+            clauses.append(-1*getPairNumFromNames(player, card2))
+            clauses.append(-1*getPairNumFromNames(player, card3))
+
+        # We're being refuted
+        if cardShown is not None:
+            clauses.append(getPairNumFromNames(refuter, cardShown))
+            clauses.append(-1*getPairNumFromNames(caseFile, cardShown))
+        # Someone else is being refuted
+        else:
+            # The refuter has at least one of the cards
+            clauses.append([getPairNumFromNames(refuter, card) for card in [card1, card2, card3]])
+    else:
+        # Nobody (but the suggester) has any of the cards
+        for player in players:
+            if player != suggester:
+            clauses.append(-1*getPairNumFromNames(player, card1))
+            clauses.append(-1*getPairNumFromNames(player, card2))
+            clauses.append(-1*getPairNumFromNames(player, card3))
+
+    return clauses
+                           
+                           
 # TO BE IMPLEMENTED FOR THIS HOMEWORK 
 def accuse(accuser,card1,card2,card3,isCorrect):
-    return []
+
+    ###########
+    # TEST ME #
+    ###########
+
+    clauses = []
+
+    # All three cards are in the case file
+    if isCorrect:
+        clauses.append(getPairNumFromNames(caseFile, card1))
+        clauses.append(getPairNumFromNames(caseFile, card2))
+        clauses.append(getPairNumFromNames(caseFile, card3))
+    else:
+        # At least one of <card1> <card2> <card3> is NOT in the case file
+        clauses.append([-1*getPairNumFromNames(casefile, card) for card in [card1, card2, card3]])
+
+    # Accuser has none of the three cards in their hand
+    clauses.append(-1*getPairNumFromNames(accuser, card1))
+    clauses.append(-1*getPairNumFromNames(accuser, card2))
+    clauses.append(-1*getPairNumFromNames(accuser, card3))
+
+    return clauses
 
 
 
