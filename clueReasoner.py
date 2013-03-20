@@ -95,19 +95,24 @@ def suggest(suggester,card1,card2,card3,refuter,cardShown):
         clauses.append([-1*getPairNumFromNames(caseFile, card) for card in [card1, card2, card3]])
 
         # Everyone between suggester and refuter did not have any of <card1> <card2> and <card3>
-        for player in players[ players.index(suggester)+1 : players.index(refuter)-1 ]:
+        suggester_index = players.index(suggester)
+        refuter_index = players.index(refuter)
+        i = (suggester_index+1)%len(players)
+        while i != refuter_index:
+            player = players[i]
             clauses.append([-1*getPairNumFromNames(player, card1)])
             clauses.append([-1*getPairNumFromNames(player, card2)])
             clauses.append([-1*getPairNumFromNames(player, card3)])
+            i = (i+1)%len(players)
 
         # We're being refuted
         if cardShown is not None:
             clauses.append([getPairNumFromNames(refuter, cardShown)])
-            clauses.append([-1*getPairNumFromNames(caseFile, cardShown)])
         # Someone else is being refuted
         else:
             # The refuter has at least one of the cards
             clauses.append([getPairNumFromNames(refuter, card) for card in [card1, card2, card3]])
+            clauses.append([-1*getPairNumFromNames(suggester, card) for card in (card1, card2, card3)])
     else:
         # Nobody (but the suggester) has any of the cards
         for player in players:
@@ -115,6 +120,9 @@ def suggest(suggester,card1,card2,card3,refuter,cardShown):
                 clauses.append([-1*getPairNumFromNames(player, card1)])
                 clauses.append([-1*getPairNumFromNames(player, card2)])
                 clauses.append([-1*getPairNumFromNames(player, card3)])
+        for card in (card1, card2, card3):
+            clauses.append([getPairNumFromNames(suggester, card),
+                            getPairNumFromNames(caseFile, card)])
                 
     return clauses
                            
